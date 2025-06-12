@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 class UserController
 {
     private $pdo;
-    private $usersTable = "users";
+    private $usersTable = "usersExamen";
 
     public function __construct()
     {
@@ -109,7 +109,8 @@ class UserController
                 email VARCHAR(45) NOT NULL,
                 password VARCHAR(400) NOT NULL,
                 rol VARCHAR(50) NOT NULL,
-                dni VARCHAR(50) NOT NULL
+                dni VARCHAR(50) NOT NULL,
+                phoneNumber VARCHAR(12) NOT NULL
             ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
         ";
         $this->pdo->exec($sql);
@@ -486,18 +487,29 @@ class UserController
         $password = $_POST['password'] ?? '';
         $rol = $_POST["rol"] ?? 'user';
         $dni = $_POST["dni"] ?? '';
+        $pNumber = $_POST["phone_number"] ?? '';
+        
+
         $usersTable = $this->usersTable;
 
+
         // Validaciones
+        if (!validPhoneNumber($pNumber)){
+            header("Location: ../view/sign_up.php");
+            exit();
+        }
+
+
+
         if (empty($username) || empty($email) || empty($password)) {
             $_SESSION['error'] = "Todos los campos son requeridos";
-            header("Location: ../view/sign_up.html");
+            header("Location: ../view/sign_up.php");
             exit();
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $_SESSION['error'] = "Email inválido";
-            header("Location: ../view/sign_up.html");
+            header("Location: ../view/sign_up.php");
             exit();
         }
 
@@ -509,7 +521,7 @@ class UserController
 
             if ($stmt->fetch()) {
                 $_SESSION['error'] = "El email ya está registrado";
-                header("Location: ../view/sign_up.html");
+                header("Location: ../view/sign_up.php");
                 exit();
             }
 
@@ -518,8 +530,8 @@ class UserController
 
             $stmt = $this->pdo->prepare("
                 INSERT INTO $usersTable 
-                (name, email, password, rol, dni) 
-                VALUES (:name, :email, :password, :rol, :dni)
+                (name, email, password, rol, dni, phoneNumber) 
+                VALUES (:name, :email, :password, :rol, :dni, :phoneNumber)
             ");
 
             $stmt->execute([
@@ -527,7 +539,8 @@ class UserController
                 ':email' => $email,
                 ':password' => $passwordHash,
                 ':rol' => $rol,
-                ':dni' => $dni
+                ':dni' => $dni,
+                ':phoneNumber' => $pNumber
             ]);
 
             $_SESSION['logged'] = true;
@@ -535,13 +548,14 @@ class UserController
             $_SESSION['email'] = $email;
             $_SESSION['rol'] = $rol;
             $_SESSION['dni'] = $dni;
+            $_SESSION['phoneNumber'] = $pNumber;
 
             header("Location: ../view/index.php");
             exit();
         } catch (PDOException $e) {
             error_log("Error de registro: " . $e->getMessage());
             $_SESSION['error'] = "Error en el registro";
-            header("Location: ../view/sign_up.html");
+            header("Location: ../view/sign_up.php");
             exit();
         }
     }

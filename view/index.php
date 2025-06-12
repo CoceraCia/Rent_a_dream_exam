@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once "../controller/functions.php";
 if (!isset($_SESSION["activeUser"])) {
   $_SESSION["activeUser"] = [

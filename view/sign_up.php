@@ -1,3 +1,10 @@
+<?php 
+    session_start();
+    if (!isset($_SESSION["error"])){
+        $_SESSION["error"] = "";
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,6 +30,7 @@
                     <input required class="input" type="name" name="name" id="name" placeholder="Nombre">
                     <input required class="input" type="text" name="dni" id="dni" placeholder="DNI">
                     <input required class="input" type="password" name="password" id="password" placeholder="Password">
+                    <input class="input" type="number" name="phone_number" id="phone_number" placeholder="Phone Number" minlength="11" maxlength="11">
                     <div class="radio-inputs">
                         <label class="radio">
                             <input required type="radio" name="rol" value="user" checked="">
@@ -36,6 +44,9 @@
                     <span class="forgot-password"><a href="login.html" style="text-shadow: none">You alredy have an account?</a></span>
                     <input class="login-button" type="submit" name="register" value="register">
                 </form>
+                <h2><?php if($_SESSION["error"] != ""){
+                    echo "Error: ". $_SESSION["error"];
+                } ?></h2>
             </div>
         </div>
 
